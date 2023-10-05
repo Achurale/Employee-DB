@@ -23,24 +23,41 @@ async function startUp() {
 
         if (answers.commands == 'View all departments') {
             await viewDept()
+            startUp()
         } else if (answers.commands == 'View all roles') {
             await viewRole()
+            startUp()
         } else if (answers.commands == 'View all employees') {
             await viewEmployee()
+            startUp()
         } else if (answers.commands == 'Create department') {
             await createDept()
+            startUp()
         } else if (answers.commands == 'Create role') {
             await createRole()
+            startUp()
         } else if (answers.commands == 'Create employee') {
-            await createEmployee()
+            connection.query(`
+            SELECT * FROM employee;`, async (err, results) => {
+                // console.log([results])
+                const managerChoices = results.map((employee) => {
+                    console.log()
+                    return {name: `${employee.first_name} ${employee.last_name}`, value: `${employee.id}`}
+                })
+                // console.log(managerChoices)
+                managerChoices.unshift({name: `None`, value: null})
+                await createEmployee(managerChoices)
+                startUp()
+            })
         } else if (answers.commands == 'Update employee') {
             await updateEmployee()
+            startUp()
         }
 
-        startUp()
     } catch (error) {
         console.error(error)
     }
+
 }
 
 // View function for departments, roles, and employees
@@ -83,7 +100,8 @@ function viewEmployee() {
     FROM employee e
     JOIN role r ON e.role_id = r.id
     JOIN dept d ON r.dept_id = d.id
-    LEFT JOIN employee m ON e.mgr_id = m.id;`,
+    LEFT JOIN employee m ON e.mgr_id = m.id
+    ORDER BY e.id;`,
         function(err, results, fields) {
             console.table(results);
         }
@@ -124,18 +142,30 @@ async function createRole() {
 
 
 // Create a new employee
-async function createEmployee() {
-    const answers = await inquirer.prompt(questions.createEmployeeQueries)
+async function createEmployee(managerChoices) {
+    const choices = questions.createEmployeeQueries
+    choices.push({
+        name:'employeeMgrId',
+        type:'list',
+        message:"Input their manager's ID if applicable",
+        choices: managerChoices
+    })
+    const answers = await inquirer.prompt(choices)
+    console.log(answers.employeeMgrId)
+    const mgrId = answers.employeeMgrId !== "" ? answers.employeeMgrId : null
+    console.log(mgrId)
 
-    connection.query(
+    try {connection.query(
         `INSERT INTO employee (first_name, last_name, role_id, mgr_id)
         VALUES
         (?, ?, ?, ?);`,
-        [answers.firstName, answers.lastName, answers.employeeRoleId, answers.employeeMgrId],
+        [answers.firstName, answers.lastName, answers.employeeRoleId, mgrId],
         function(err,results,fields) {
             console.table(results)
         }
-    )
+    )} catch (err) {
+        console.log('Error:', err)
+    }
 }
 
 // Update existing employee
@@ -181,8 +211,6 @@ async function updateEmployee() {
         }} catch (error) {
             console.error('Error: ', error)
         }
-
-        startUp()
 }
 
 startUp()
