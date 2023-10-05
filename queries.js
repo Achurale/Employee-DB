@@ -55,19 +55,23 @@ const createEmployeeQueries = [
     {
         name:'lastName',
         type:'input',
-        message:'Input theirl ast name',
+        message:'Input their last name',
     },
     {
         name:'employeeRoleId',
         type:'number',
         message:'What will their role be?',
     },
-    {
-        name:'employeeMgrId',
-        type:'number',
-        message:"Input their manager's ID if applicable",
-        default: null
-    }
+    // {
+    //     name:'employeeMgrId',
+    //     type:'list',
+    //     message:"Input their manager's ID if applicable",
+    //     choices: [
+    //         {
+
+    //         }
+    //     ]
+    // }
 ]
 
 const choices = [
