@@ -12,9 +12,9 @@ Install the required packages using npm
 
 Run index.js using node to start it up.
 
-    ```md
-    ![alt text](assets/images/screenshot.png)
-    ```
+![](./Assets/CLI-1.png)
+
+https://youtu.be/di3Sb1g5ock
 
 ## Credits
 
